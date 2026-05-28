@@ -10,7 +10,7 @@ import { delay, planTasks } from "@/lib/mock-ai";
 import { PageHeader, SkeletonOut } from "./email";
 
 export const Route = createFileRoute("/planner")({
-  head: () => ({ meta: [{ title: "Task Planner — WorkMind AI" }] }),
+  head: () => ({ meta: [{ title: "Task Planner — WorkMind" }] }),
   component: PlannerPage,
 });
 

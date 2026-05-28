@@ -30,9 +30,8 @@ function Logo() {
       <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
         <Brain className="w-5 h-5" />
       </div>
-      <div className="leading-tight">
+        <div className="leading-tight">
         <div className="font-bold text-base">WorkMind</div>
-        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">AI</div>
       </div>
     </div>
   );
