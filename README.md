@@ -91,7 +91,7 @@ WorkMind AI solves this by acting as an always-on AI assistant that generates ac
 
 | Category | Tool / Technology |
 |----------|------------------|
-| AI Engine | Anthropic Claude API (`claude-sonnet-4-20250514`) |
+| AI Engine | Lovable API |
 | Frontend Framework | React 18 (Single Page Application) |
 | Styling | Tailwind CSS |
 | State Management | React `useState` / `useReducer` (session-persistent) |
