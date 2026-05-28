@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Mail, FileText, CalendarCheck, Search, MessageSquare, Sparkles, Clock, ArrowRight } from "lucide-react";
 import { useStore, relativeTime } from "@/lib/store";
 
@@ -18,6 +19,8 @@ const features = [
 
 function Dashboard() {
   const { stats, activity } = useStore();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const cards = [
     { label: "Emails Drafted", value: stats.emails, icon: Mail },
     { label: "Summaries Created", value: stats.summaries, icon: FileText },
@@ -78,7 +81,7 @@ function Dashboard() {
           {activity.slice(0, 5).map((a) => (
             <div key={a.id} className="px-4 py-3 flex items-center justify-between text-sm">
               <span>{a.text}</span>
-              <span className="text-xs text-muted-foreground shrink-0 ml-3">{relativeTime(a.at)}</span>
+              <span className="text-xs text-muted-foreground shrink-0 ml-3" suppressHydrationWarning>{mounted ? relativeTime(a.at) : ""}</span>
             </div>
           ))}
         </div>
