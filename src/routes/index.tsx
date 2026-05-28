@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Mail, FileText, CalendarCheck, Search, MessageSquare, Sparkles, Clock, ArrowRight } from "lucide-react";
 import { useStore, relativeTime } from "@/lib/store";
 
