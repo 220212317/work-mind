@@ -52,10 +52,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "WorkMind AI — Workplace Productivity Assistant" },
+      { title: "WorkMind — Workplace Productivity Assistant" },
       { name: "description", content: "AI-powered workplace productivity: draft emails, summarize meetings, plan tasks, and research topics from raw input." },
-      { name: "author", content: "WorkMind AI" },
-      { property: "og:title", content: "WorkMind AI" },
+      { name: "author", content: "WorkMind" },
+      { property: "og:title", content: "WorkMind" },
       { property: "og:description", content: "Your intent-first AI productivity workspace." },
       { property: "og:type", content: "website" },
     ],

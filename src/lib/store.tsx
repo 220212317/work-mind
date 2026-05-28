@@ -16,7 +16,7 @@ type Store = {
 const Ctx = createContext<Store | null>(null);
 
 const seedActivity: Activity[] = [
-  { id: "s1", text: "Welcome to WorkMind AI — let's get productive.", at: Date.now() - 1000 * 60 * 10 },
+  { id: "s1", text: "Welcome to WorkMind — let's get productive.", at: Date.now() - 1000 * 60 * 10 },
   { id: "s2", text: "Session started — your workspace is ready.", at: Date.now() - 1000 * 60 * 2 },
 ];
 

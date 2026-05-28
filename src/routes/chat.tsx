@@ -6,7 +6,7 @@ import { chatReply, delay, extractFileText } from "@/lib/mock-ai";
 import { Disclaimer } from "@/components/Disclaimer";
 
 export const Route = createFileRoute("/chat")({
-  head: () => ({ meta: [{ title: "AI Chat — WorkMind AI" }] }),
+  head: () => ({ meta: [{ title: "AI Chat — WorkMind" }] }),
   component: ChatPage,
 });
 

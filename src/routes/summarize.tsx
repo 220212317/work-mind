@@ -10,7 +10,7 @@ import { delay, summarizeNotes } from "@/lib/mock-ai";
 import { PageHeader, SkeletonOut } from "./email";
 
 export const Route = createFileRoute("/summarize")({
-  head: () => ({ meta: [{ title: "Meeting Summarizer — WorkMind AI" }] }),
+  head: () => ({ meta: [{ title: "Meeting Summarizer — WorkMind" }] }),
   component: SummarizePage,
 });
 

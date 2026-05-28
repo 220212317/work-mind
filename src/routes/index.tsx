@@ -4,7 +4,7 @@ import { Mail, FileText, CalendarCheck, Search, MessageSquare, Sparkles, Clock, 
 import { useStore, relativeTime } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
-  head: () => ({ meta: [{ title: "Dashboard — WorkMind AI" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — WorkMind" }] }),
   component: Dashboard,
 });
 
@@ -35,7 +35,7 @@ function Dashboard() {
           <Sparkles className="w-3 h-3" /> Intent-first AI workspace
         </div>
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-          Welcome to WorkMind AI — What would you like to do today?
+          Welcome to WorkMind — What would you like to do today?
         </h1>
         <p className="text-muted-foreground">Five generative tools, one open input. Just describe what you need.</p>
       </header>

@@ -10,7 +10,7 @@ import { delay, researchTopic } from "@/lib/mock-ai";
 import { PageHeader, SkeletonOut } from "./email";
 
 export const Route = createFileRoute("/research")({
-  head: () => ({ meta: [{ title: "Research Assistant — WorkMind AI" }] }),
+  head: () => ({ meta: [{ title: "Research Assistant — WorkMind" }] }),
   component: ResearchPage,
 });
 

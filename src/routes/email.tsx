@@ -9,7 +9,7 @@ import { useStore } from "@/lib/store";
 import { delay, generateEmail } from "@/lib/mock-ai";
 
 export const Route = createFileRoute("/email")({
-  head: () => ({ meta: [{ title: "Smart Email Draftsman — WorkMind AI" }] }),
+  head: () => ({ meta: [{ title: "Smart Email Draftsman — WorkMind" }] }),
   component: EmailPage,
 });
 
