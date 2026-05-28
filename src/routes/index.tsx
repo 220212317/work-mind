@@ -19,6 +19,8 @@ const features = [
 
 function Dashboard() {
   const { stats, activity } = useStore();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const cards = [
     { label: "Emails Drafted", value: stats.emails, icon: Mail },
     { label: "Summaries Created", value: stats.summaries, icon: FileText },
