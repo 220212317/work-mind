@@ -7,7 +7,7 @@
 
 ## 📌 Project Overview
 
-WorkMind AI is an AI-powered workplace productivity assistant designed to automate repetitive professional tasks. It combines five intelligent tools into a single, seamless interface — helping professionals draft emails, summarize meetings, plan tasks, conduct research, and interact with an AI assistant, all powered by the **Anthropic Claude API**.
+WorkMind AI is an AI-powered workplace productivity assistant designed to automate repetitive professional tasks. It combines five intelligent tools into a single, seamless interface — helping professionals draft emails, summarize meetings, plan tasks, conduct research, and interact with an AI assistant, all powered by the **Lovable AI**.
 
 The app is built on an **Intent-First & Generative** UX philosophy: instead of filling out multi-field forms, users provide raw keywords, unstructured text, or an uploaded document, and the AI infers the structure and generates polished, accurate results.
 
