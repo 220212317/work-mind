@@ -81,7 +81,7 @@ function Dashboard() {
           {activity.slice(0, 5).map((a) => (
             <div key={a.id} className="px-4 py-3 flex items-center justify-between text-sm">
               <span>{a.text}</span>
-              <span className="text-xs text-muted-foreground shrink-0 ml-3">{relativeTime(a.at)}</span>
+              <span className="text-xs text-muted-foreground shrink-0 ml-3" suppressHydrationWarning>{mounted ? relativeTime(a.at) : ""}</span>
             </div>
           ))}
         </div>
