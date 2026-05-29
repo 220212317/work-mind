@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, Loader2, Sparkles, BookOpen } from "lucide-react";
+import { Search, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { FileUpload } from "@/components/FileUpload";
 import { EmptyState } from "@/components/EmptyState";
-import { Disclaimer } from "@/components/Disclaimer";
+import { EditableOutput } from "@/components/EditableOutput";
 import { useStore } from "@/lib/store";
-import { delay, researchTopic } from "@/lib/mock-ai";
+import { aiChat } from "@/lib/api/ai.functions";
 import { PageHeader, SkeletonOut } from "./email";
 
 export const Route = createFileRoute("/research")({
@@ -16,20 +17,26 @@ export const Route = createFileRoute("/research")({
 
 function ResearchPage() {
   const { bump } = useStore();
+  const callAi = useServerFn(aiChat);
   const [input, setInput] = useState("");
   const [file, setFile] = useState<{ name: string; text: string } | null>(null);
   const [loading, setLoading] = useState(false);
-  const [out, setOut] = useState<ReturnType<typeof researchTopic> | null>(null);
+  const [out, setOut] = useState<string>("");
 
   const run = async () => {
-    const source = (input + " " + (file?.text ?? "")).trim();
+    const source = (input.trim() + (file?.text ? `\n\n${file.text}` : "")).trim();
     if (!source) { toast.error("Enter a topic or upload a document."); return; }
-    setLoading(true); setOut(null);
-    await delay();
-    setOut(researchTopic(source));
-    setLoading(false);
-    bump("research", `Research generated on "${input.slice(0, 40) || file?.name}"`);
-    toast.success("Insights ready");
+    setLoading(true); setOut("");
+    try {
+      const { text } = await callAi({ data: { messages: [{ role: "user", content: `Research and decode this topic for a busy professional:\n\n${source}` }], intent: "research" } });
+      setOut(text);
+      bump("research", `Research generated on "${input.slice(0, 40) || file?.name}"`);
+      toast.success("Insights ready");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to research");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -56,36 +63,12 @@ function ResearchPage() {
 
       <div className="rounded-xl border bg-card p-5">
         {loading ? <SkeletonOut /> : out ? (
-          <article className="space-y-6 prose-academic">
-            <section>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-primary mb-2">Executive Summary</h2>
-              <p className="text-base leading-relaxed">{out.summary}</p>
-            </section>
-            <section>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-primary mb-3">Core Insights</h2>
-              <ul className="space-y-2">
-                {out.insights.map((i, idx) => (
-                  <li key={idx} className="flex gap-3 text-sm">
-                    <span className="font-mono text-primary font-semibold">0{idx + 1}</span>
-                    <span>{i}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <section className="rounded-lg border bg-muted/30 p-4">
-              <div className="flex items-center gap-2 mb-2 text-primary">
-                <BookOpen className="w-4 h-4" />
-                <h2 className="text-sm font-bold uppercase tracking-wider">Layman's Terms</h2>
-              </div>
-              <p className="text-sm leading-relaxed">{out.layman}</p>
-            </section>
-            <Disclaimer />
-          </article>
+          <EditableOutput label="Research brief" value={out} minHeight={400} />
         ) : (
           <EmptyState
             icon={Search}
             title="Insights will appear here"
-            description="Paste a topic, article, or upload a doc — we'll deliver an exec summary, core insights, and a plain-English translation."
+            description="Paste a topic, article, or upload a doc — we'll deliver an executive summary, key insights, and recommendations in an editable brief."
             cta="Try: 'quantum computing in supply chain' →"
           />
         )}
