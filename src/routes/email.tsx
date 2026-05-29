@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, Copy, Loader2, Sparkles } from "lucide-react";
+import { Mail, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { FileUpload } from "@/components/FileUpload";
 import { EmptyState } from "@/components/EmptyState";
-import { Disclaimer } from "@/components/Disclaimer";
+import { EditableOutput } from "@/components/EditableOutput";
 import { useStore } from "@/lib/store";
-import { delay, generateEmail } from "@/lib/mock-ai";
+import { aiChat } from "@/lib/api/ai.functions";
 
 export const Route = createFileRoute("/email")({
   head: () => ({ meta: [{ title: "Smart Email Draftsman — WorkMind" }] }),
@@ -29,34 +30,33 @@ function Pill({ active, onClick, children }: { active: boolean; onClick: () => v
 
 function EmailPage() {
   const { bump } = useStore();
+  const callAi = useServerFn(aiChat);
   const [input, setInput] = useState("");
   const [recipient, setRecipient] = useState<(typeof recipients)[number]>("Client");
   const [tone, setTone] = useState<(typeof tones)[number]>("Formal");
   const [file, setFile] = useState<{ name: string; text: string } | null>(null);
   const [loading, setLoading] = useState(false);
-  const [out, setOut] = useState<{ subject: string; body: string } | null>(null);
+  const [out, setOut] = useState<string>("");
 
   const run = async () => {
     if (!input.trim()) { toast.error("Add a few key points first."); return; }
-    setLoading(true);
-    setOut(null);
-    await delay();
-    const result = generateEmail(input, recipient, tone, file?.text);
-    setOut(result);
-    setLoading(false);
-    bump("emails", `Email generated — "${result.subject.slice(0, 40)}"`);
-    toast.success("Email drafted");
-  };
-
-  const copy = async () => {
-    if (!out) return;
-    await navigator.clipboard.writeText(`Subject: ${out.subject}\n\n${out.body}`);
-    toast.success("Copied to clipboard");
+    setLoading(true); setOut("");
+    try {
+      const prompt = `Draft a ${tone.toLowerCase()} email to a ${recipient.toLowerCase()}. Context / key points:\n${input}${file?.text ? `\n\nReference document:\n${file.text}` : ""}`;
+      const { text } = await callAi({ data: { messages: [{ role: "user", content: prompt }], intent: "email" } });
+      setOut(text);
+      bump("emails", `Email drafted (${tone}, ${recipient})`);
+      toast.success("Email drafted");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to draft email");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="space-y-6">
-      <PageHeader icon={Mail} title="Smart Email Draftsman" subtitle="Drop in keywords or context — we infer the subject line and craft the email." />
+      <PageHeader icon={Mail} title="Smart Email Draftsman" subtitle="Drop in keywords or context — we draft the email, you edit and send." />
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="rounded-xl border bg-card p-5 space-y-4">
@@ -98,24 +98,12 @@ function EmailPage() {
 
         <div className="rounded-xl border bg-card p-5">
           {loading ? <SkeletonOut /> : out ? (
-            <div className="space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Subject</div>
-                  <div className="font-semibold mt-0.5">{out.subject}</div>
-                </div>
-                <button onClick={copy} className="shrink-0 inline-flex items-center gap-1.5 text-xs border rounded-lg px-2.5 py-1.5 hover:bg-accent">
-                  <Copy className="w-3 h-3" /> Copy
-                </button>
-              </div>
-              <pre className="whitespace-pre-wrap text-sm font-sans bg-background/50 rounded-lg p-3 border">{out.body}</pre>
-              <Disclaimer />
-            </div>
+            <EditableOutput label="Email draft" value={out} minHeight={320} />
           ) : (
             <EmptyState
               icon={Mail}
               title="Your draft will appear here"
-              description="Add a few key points on the left — we'll generate a polished email with an auto-inferred subject line."
+              description="Add a few key points on the left — we'll generate a polished email you can edit inline."
               cta="Start with any keywords →"
             />
           )}

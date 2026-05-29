@@ -2,11 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { FileText, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { FileUpload } from "@/components/FileUpload";
 import { EmptyState } from "@/components/EmptyState";
-import { Disclaimer } from "@/components/Disclaimer";
+import { EditableOutput } from "@/components/EditableOutput";
 import { useStore } from "@/lib/store";
-import { delay, summarizeNotes } from "@/lib/mock-ai";
+import { aiChat } from "@/lib/api/ai.functions";
 import { PageHeader, SkeletonOut } from "./email";
 
 export const Route = createFileRoute("/summarize")({
@@ -16,22 +17,26 @@ export const Route = createFileRoute("/summarize")({
 
 function SummarizePage() {
   const { bump } = useStore();
+  const callAi = useServerFn(aiChat);
   const [input, setInput] = useState("");
   const [file, setFile] = useState<{ name: string; text: string } | null>(null);
   const [loading, setLoading] = useState(false);
-  const [out, setOut] = useState<ReturnType<typeof summarizeNotes> | null>(null);
+  const [out, setOut] = useState<string>("");
 
   const run = async () => {
-    const source = input.trim() || file?.text || "";
+    const source = (input.trim() + (file?.text ? `\n\n${file.text}` : "")).trim();
     if (!source) { toast.error("Paste notes or upload a transcript."); return; }
-    setLoading(true);
-    setOut(null);
-    await delay();
-    const r = summarizeNotes(source);
-    setOut(r);
-    setLoading(false);
-    bump("summaries", `Summary created — ${r.keyPoints.length} key points`);
-    toast.success("Summary ready");
+    setLoading(true); setOut("");
+    try {
+      const { text } = await callAi({ data: { messages: [{ role: "user", content: `Summarize the following notes:\n\n${source}` }], intent: "summary" } });
+      setOut(text);
+      bump("summaries", `Summary created`);
+      toast.success("Summary ready");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to summarize");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -58,57 +63,12 @@ function SummarizePage() {
 
       <div className="rounded-xl border bg-card p-5">
         {loading ? <SkeletonOut /> : out ? (
-          <div className="space-y-6">
-            <section>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-primary mb-3">Key Points</h2>
-              <ul className="space-y-2">
-                {out.keyPoints.map((k, i) => (
-                  <li key={i} className="flex gap-2 text-sm"><span className="text-primary">•</span><span>{k}</span></li>
-                ))}
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-primary mb-3">Decisions Made</h2>
-              <ol className="space-y-2 list-decimal list-inside">
-                {out.decisions.map((d, i) => (<li key={i} className="text-sm">{d}</li>))}
-              </ol>
-            </section>
-
-            <section>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-primary mb-3">Action Items</h2>
-              <div className="overflow-x-auto rounded-lg border">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/50 text-left">
-                    <tr>
-                      <th className="px-3 py-2 font-medium">Task</th>
-                      <th className="px-3 py-2 font-medium">Owner</th>
-                      <th className="px-3 py-2 font-medium">Deadline</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {out.actions.map((a, i) => (
-                      <tr key={i}>
-                        <td className="px-3 py-2">{a.task}</td>
-                        <td className="px-3 py-2">
-                          <span className={a.owner === "TBD" ? "text-muted-foreground italic" : ""}>{a.owner}</span>
-                        </td>
-                        <td className="px-3 py-2">
-                          <span className={a.deadline === "TBD" ? "text-muted-foreground italic" : ""}>{a.deadline}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-            <Disclaimer />
-          </div>
+          <EditableOutput label="Structured summary" value={out} minHeight={360} />
         ) : (
           <EmptyState
             icon={FileText}
             title="Structured summary will appear here"
-            description="Paste messy notes — we'll split them into Key Points, Decisions, and an Action Items table."
+            description="Paste messy notes — we'll split them into Key Points, Decisions, and Action Items in an editable text block."
             cta="Drop your transcript above →"
           />
         )}
